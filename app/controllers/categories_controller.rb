@@ -1,5 +1,6 @@
 class CategoriesController < ApplicationController
   before_action :set_category, only: [:show]
+  before_action :redirect_logged_out, except: [:show]
   
   def show
   end

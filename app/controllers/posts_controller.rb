@@ -1,8 +1,9 @@
 class PostsController < ApplicationController
-  before_action :set_post, only: [:show, :edit, :update]
+  before_action :set_post, only: [:show, :edit, :update, :vote]
+  before_action :redirect_logged_out, except: [:index, :show]
   
   def index
-    @posts = Post.all
+    @posts = Post.all.sort_by{|x| x.total_votes}.reverse
   end
   
   def show
@@ -11,12 +12,11 @@ class PostsController < ApplicationController
   
   def new
     @post = Post.new
-    @categories = Category.all
   end
   
   def create
     @post = Post.new(post_params)
-    @post.creator = User.first #Change after authentication!
+    @post.creator = current_user
     
     if @post.save
       flash[:notice] = "Post successfully created!"
@@ -38,6 +38,19 @@ class PostsController < ApplicationController
       render :edit
     end
     
+  end
+  
+  def vote
+    vote_boolean = params[:vote]
+    vote = Vote.create(vote: vote_boolean, user_id: current_user.id, voteable: @post)
+    
+    if vote.valid?
+      flash[:success] = "Vote counted!"
+      redirect_to :back
+    else
+      flash[:error] = "You can only vote for that once."
+      redirect_to :back
+    end
   end
   
   private
