@@ -2,7 +2,7 @@ class CommentsController < ApplicationController
   before_action :redirect_logged_out
   
   def create
-    @post = Post.find(params[:post_id])
+    @post = Post.find_by(slug: params[:post_id])
     @comment = @post.comments.new(params.require(:comment).permit(:body))
     @comment.creator = current_user
     if @comment.save
@@ -16,14 +16,21 @@ class CommentsController < ApplicationController
   def vote
     @comment = Comment.find(params[:id])
     vote_boolean = params[:vote]
-    vote = Vote.create(vote: vote_boolean, user_id: current_user.id, voteable: @comment)
+    @vote = Vote.create(vote: vote_boolean, user_id: current_user.id, voteable: @comment)
     
-    if vote.valid?
-      flash[:success] = "Vote counted!"
-      redirect_to :back
-    else
-      flash[:error] = "You can only vote for that once."
-      redirect_to :back
+    
+    respond_to do |format|
+      format.html do
+        if @vote.valid?
+          flash.now[:notice] = "Vote counted!"
+        else
+          flash.now[:error] = "You can only vote for that once."
+        end
+        redirect_to :back
+      end
+      format.js do
+        render 'vote/vote'
+      end
     end
   end
 end

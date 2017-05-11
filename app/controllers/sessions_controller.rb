@@ -11,7 +11,7 @@ class SessionsController < ApplicationController
       session[:user_id] = user.id
       redirect_to posts_path
     else
-      flash[:notice] = "Incorrect Username and/or Password"
+      flash[:error] = "Incorrect Username and/or Password"
       render 'new'
     end
   end

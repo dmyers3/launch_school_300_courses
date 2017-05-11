@@ -1,0 +1,7 @@
+<% if @vote.valid? %>
+  $("#data_post<%= @post.slug %>_votes").html("<%= pluralize(@post.total_votes, 'vote') %>");
+<% else %>
+  alert("You can only vote for that once.");
+<% end %>
+
+

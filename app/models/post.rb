@@ -8,6 +8,8 @@ class Post < ActiveRecord::Base
   validates :title, presence: true, length: {minimum: 5}
   validates :description, presence: true
   
+  before_save :slugify
+  
   def total_votes
     up_votes - down_votes
   end
@@ -18,5 +20,13 @@ class Post < ActiveRecord::Base
   
   def down_votes
     self.votes.where(vote: false).size
+  end
+  
+  def slugify
+    self.slug = self.title.downcase.gsub(' ', '-')
+  end
+  
+  def to_param
+    self.slug
   end
 end
