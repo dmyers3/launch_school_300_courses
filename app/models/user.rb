@@ -8,10 +8,26 @@ class User < ActiveRecord::Base
   validates :username, uniqueness: true, length: {minimum: 3}, presence: true
   validates :password, presence: true, on: :create, length: {minimum: 8}, confirmation: true
   
-  before_save :slugify
+  before_save :generate_unique_slug
   
-  def slugify
-    self.slug = self.username.downcase.gsub(' ', '-')
+  def slugify(username)
+    str = username.strip
+    str.gsub!(/\s*[^A-Za-z0-9]\s*/, '-')
+    str.gsub!(/-+/, '-')
+    str.downcase
+  end
+  
+  def generate_unique_slug
+    the_slug = slugify(self.username)
+    user = User.find_by slug: the_slug
+    count = 2
+    while user && user != self
+      unique_check_slug = the_slug + "-" + count.to_s
+      user = User.find_by slug: unique_check_slug
+      count += 1
+    end
+    
+    self.slug = unique_check_slug || the_slug
   end
   
   def to_param
