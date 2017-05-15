@@ -4,6 +4,7 @@ module ApplicationHelper
   end
   
   def format_date(date)
+    date = date.in_time_zone(current_user.time_zone) if current_user && current_user.time_zone
     date.strftime("%B %d, %Y at %l:%M %p %Z")
   end
 end

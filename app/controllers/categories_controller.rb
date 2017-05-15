@@ -1,6 +1,7 @@
 class CategoriesController < ApplicationController
   before_action :set_category, only: [:show]
   before_action :redirect_logged_out, except: [:show]
+  before_action :require_admin, except: [:show]
   
   def show
   end
@@ -29,6 +30,8 @@ class CategoriesController < ApplicationController
     def set_category
       @category = Category.find_by(slug: params[:id])
     end
+    
+    
   
   
 end

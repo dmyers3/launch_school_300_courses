@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  include Sluggable
+  
   has_many :posts
   has_many :comments
   has_many :votes
@@ -8,29 +10,13 @@ class User < ActiveRecord::Base
   validates :username, uniqueness: true, length: {minimum: 3}, presence: true
   validates :password, presence: true, on: :create, length: {minimum: 8}, confirmation: true
   
-  before_save :generate_unique_slug
+  sluggable_property :username
   
-  def slugify(username)
-    str = username.strip
-    str.gsub!(/\s*[^A-Za-z0-9]\s*/, '-')
-    str.gsub!(/-+/, '-')
-    str.downcase
+  def admin?
+    self.role == 'admin'
   end
   
-  def generate_unique_slug
-    the_slug = slugify(self.username)
-    user = User.find_by slug: the_slug
-    count = 2
-    while user && user != self
-      unique_check_slug = the_slug + "-" + count.to_s
-      user = User.find_by slug: unique_check_slug
-      count += 1
-    end
-    
-    self.slug = unique_check_slug || the_slug
-  end
-  
-  def to_param
-    self.slug
+  def creator?(obj)
+    obj.creator == self
   end
 end

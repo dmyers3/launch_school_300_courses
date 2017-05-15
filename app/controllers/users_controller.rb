@@ -34,7 +34,7 @@ class UsersController < ApplicationController
   
   private
     def user_params
-      params.require(:user).permit(:username, :password, :password_confirmation)
+      params.require(:user).permit(:username, :password, :password_confirmation, :time_zone)
     end
     
     def set_user
@@ -42,7 +42,7 @@ class UsersController < ApplicationController
     end
     
     def require_same_user
-      if params[:id] != session[:user_id]
+      if @user.id != session[:user_id]
         flash[:error] = "You do not have access to that page."
         redirect_to root_path
       end

@@ -1,6 +1,10 @@
 class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :vote]
   before_action :redirect_logged_out, except: [:index, :show]
+  before_action only: [:edit, :update] do
+    require_creator_or_admin(@post)
+  end
+  
   
   def index
     @posts = Post.all.sort_by{|x| x.total_votes}.reverse
